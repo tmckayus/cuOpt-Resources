@@ -21,5 +21,5 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-NAMESPACE=cuopt-server
-kubectl delete secret nvidia-registrykey-secret -n $NAMESPACE
+NAMESPACE=triton
+kubectl delete secret triton-auth -n $NAMESPACE

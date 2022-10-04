@@ -21,22 +21,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-NAMESPACE=cuopt-server
+NAMESPACE=triton
 kubectl create namespace $NAMESPACE
 
-helm fetch https://helm.ngc.nvidia.com/nvidia/cuopt/charts/cuopt-22.08.0.tgz --username='$oauthtoken' --password=$API_KEY --untar
-
-case $SERVER_TYPE in
-  "jupyter")
-    helm install --namespace $NAMESPACE --set ngc.apiKey=$API_KEY --set enable_nodeport=true nvidia-cuopt-chart cuopt --values cuopt/values_notebook.yaml
-    ;;
-
-  "both")
-    helm install --namespace $NAMESPACE --set ngc.apiKey=$API_KEY --set enable_nodeport=true --set enable_notebook_server=true nvidia-cuopt-chart cuopt --values cuopt/values.yaml
-    ;;
-
-  # default to api server in all other cases
-  *)
-    helm install --namespace $NAMESPACE --set ngc.apiKey=$API_KEY --set enable_nodeport=true nvidia-cuopt-chart cuopt --values cuopt/values.yaml
-    ;;
-esac
+helm install tritonserver tritoninferenceserver --values tritoninferenceserver/values.yaml --set aws_auth.AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" --set aws_auth.AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" --set aws_auth.AWS_SESSION_TOKEN="$AWS_SESSION_TOKEN" --set image.modelRepositoryPath="$MODEL_REPOSITORY" --set aws_auth.AWS_DEFAULT_REGION="$MODEL_REPOSITORY_REGION" --namespace $NAMESPACE

@@ -21,4 +21,27 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-TF_VAR_api_key=null terraform destroy --auto-approve
+DIR=$(dirname $(realpath "$0"))
+if [ "$AWS_ACCESS_KEY_ID" == "" ]; then
+    read -sp 'Enter a AWS_ACCESS_KEY_ID: ' AWS_ACCESS_KEY_ID
+fi
+
+if [ "$AWS_SECRET_ACCESS_KEY" == "" ]; then
+    read -sp 'Enter a AWS_SECRET_ACCESS_KEY: ' AWS_SECRET_ACCESS_KEY
+fi
+
+if [ "$AWS_SECRET_ACCESS_KEY" == "" ]; then
+    read -sp 'Enter a AWS_SECRET_ACCESS_KEY: ' AWS_SECRET_ACCESS_KEY
+fi
+
+TF_VAR_aws_access_key_id=$AWS_ACCESS_KEY_ID TF_VAR_aws_secret_access_key=$AWS_SECRET_ACCESS_KEY TF_VAR_aws_session_token=$AWS_SESSION_TOKEN terraform apply --auto-approve
+if [ "$?" -ne 0 ]; then
+    exit -1
+fi
+terraform output --json outputs > values.json
+$DIR/utilities/parse.py values.json values.sh
+source values.sh
+
+echo "The triton server http port is $ip:30000"
+echo "The triton server grpc port is $ip:30001"
+echo "The triton server metrics port is $ip:30002"

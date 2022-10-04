@@ -52,7 +52,7 @@ resource "random_pet" "pet" {
 resource "aws_default_vpc" "default" {
 }
 
-resource "aws_security_group" "cuopt-server" {
+resource "aws_security_group" "triton-server" {
   name = lower(random_pet.pet.id)
   vpc_id = "${aws_default_vpc.default.id}"
 
@@ -61,14 +61,14 @@ resource "aws_security_group" "cuopt-server" {
     from_port = 30000
     to_port = 30000
     protocol = "tcp"
-    cidr_blocks = var.cuopt_server_cidr_blocks
+    cidr_blocks = var.server_cidr_blocks
   }
 
   ingress {
     from_port = 30001
     to_port = 30001
     protocol = "tcp"
-    cidr_blocks = var.cuopt_server_cidr_blocks
+    cidr_blocks = var.server_cidr_blocks
   }
 
   ingress {
@@ -115,17 +115,17 @@ data "aws_ami" "osimage" {
   owners = var.instance_ami_owner
 }
 
-resource "aws_key_pair" "cuopt" {
+resource "aws_key_pair" "triton" {
   key_name   = lower(random_pet.pet.id)
   public_key = file(var.public_key_path)
 }
 
-resource "aws_instance" "cuopt_server" {
+resource "aws_instance" "triton_server" {
   ami           = data.aws_ami.osimage.id
   instance_type = var.instance_type
-  key_name = aws_key_pair.cuopt.key_name
+  key_name = aws_key_pair.triton.key_name
   
-  vpc_security_group_ids = concat([aws_security_group.cuopt-server.id], data.aws_security_groups.additional-security-groups.ids)
+  vpc_security_group_ids = concat([aws_security_group.triton-server.id], data.aws_security_groups.additional-security-groups.ids)
   root_block_device {
     volume_size = var.instance_root_volume_size 
   } 
@@ -136,29 +136,33 @@ resource "aws_instance" "cuopt_server" {
 
 output "outputs" {
   value = {
-            "machine": aws_instance.cuopt_server.tags.Name,
-            "ip": aws_instance.cuopt_server.public_ip,
+            "machine": aws_instance.triton_server.tags.Name,
+            "ip": aws_instance.triton_server.public_ip,
             "user": var.user,
             "private_key_path": var.private_key_path
-            "cuopt_server_type": var.cuopt_server_type
           }
 }
 
 resource "null_resource" "install-cnc" {
   depends_on = [
-    aws_instance.cuopt_server
+    aws_instance.triton_server
   ]
   connection {
     type        = "ssh"
     user        = var.user
     private_key = "${file(var.private_key_path)}"
-    host        = "${aws_instance.cuopt_server.public_ip}"
+    host        = "${aws_instance.triton_server.public_ip}"
   }
 
   provisioner "file" {
     source      = "${path.module}/../scripts"
     destination = "scripts"
   }
+
+ provisioner "file" {
+    source      = "${path.module}/tritoninferenceserver"
+    destination = "tritoninferenceserver"
+ }
 
   provisioner "remote-exec" {
     inline = [<<EOT
@@ -173,7 +177,7 @@ resource "null_resource" "install-cnc" {
 
 # Break this out separately because the presence of var.api_key
 # causes logging to be suppressed by Terraform
-resource "null_resource" "start-cuopt" {
+resource "null_resource" "start-triton" {
   depends_on = [
     null_resource.install-cnc
   ]
@@ -181,32 +185,31 @@ resource "null_resource" "start-cuopt" {
     type        = "ssh"
     user        = var.user
     private_key = "${file(var.private_key_path)}"
-    host        = "${aws_instance.cuopt_server.public_ip}"
+    host        = "${aws_instance.triton_server.public_ip}"
   }
 
   provisioner "remote-exec" {
     inline = [<<EOT
-      API_KEY=${var.api_key} SERVER_TYPE=${var.cuopt_server_type} scripts/cuopt-helm.sh 2>&1 | tee logs/cuopt-helm.log
+      AWS_SECRET_ACCESS_KEY=${var.aws_secret_access_key} AWS_ACCESS_KEY_ID=${var.aws_access_key_id} AWS_SESSION_TOKEN=${var.aws_session_token} MODEL_REPOSITORY=${var.model_repository} MODEL_REPOSITORY_REGION=${var.model_repository_region != "" ? var.model_repository_region : var.instance_region} scripts/triton-helm.sh 2>&1 | tee logs/triton-helm.log
     EOT
     ]
   }
 }
 
-resource "null_resource" "wait-cuopt" {
+resource "null_resource" "wait-triton" {
   depends_on = [
-    null_resource.start-cuopt
+    null_resource.start-triton
   ]
   connection {
     type        = "ssh"
     user        = var.user
     private_key = "${file(var.private_key_path)}"
-    host        = "${aws_instance.cuopt_server.public_ip}"
+    host        = "${aws_instance.triton_server.public_ip}"
   }
 
   provisioner "remote-exec" {
     inline = [<<EOT
-      scripts/wait-cuopt.sh 2>&1 | tee logs/wait-for-cuopt.log
-      scripts/delete-secret.sh 2>&1 | tee logs/delete-secret.log
+      scripts/wait-triton.sh 2>&1 | tee logs/wait-triton.log
     EOT
     ]
   }

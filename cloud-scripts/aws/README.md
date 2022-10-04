@@ -1,5 +1,5 @@
 # AWS
-A collection of scripts and resources to spin-up AWS cuOpt instances
+A collection of scripts and resources to spin-up AWS triton instances
 
 ## Installing Terraform in CloudShell
 

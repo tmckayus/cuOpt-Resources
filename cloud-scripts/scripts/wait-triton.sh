@@ -21,30 +21,22 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-DIR=$(dirname $(realpath "$0"))
-if [ "$API_KEY" == "" ]; then
-    read -sp 'Enter a NGC api-key to access cuOpt resources: ' API_KEY
-fi
-
-TF_VAR_api_key=$API_KEY terraform apply --auto-approve
-if [ "$?" -ne 0 ]; then
-    exit -1
-fi
-terraform output --json outputs > values.json
-$DIR/utilities/parse.py values.json values.sh
-source values.sh
-
-nmsg="The address of the cuOpt notebook server is $ip:30001"
-amsg="The address of the cuOpt api server is $ip:30000"
-case $cuopt_server_type in
-  "jupyter")
-     msg=$nmsg
-     ;;
-  "both")
-     msg="$amsg\n$nmsg"
-     ;;
-  *)
-     msg=$amsg
-     ;;
-esac
-echo -e $msg
+NAMESPACE=triton
+helm list -n $NAMESPACE
+echo Waiting for triton server pod to be created ...
+i=0
+while true
+do
+    pods=$(kubectl get -n $NAMESPACE pod --selector app=tritoninferenceserver)
+    if [ -n "$pods" ]; then
+	break
+    fi
+    i=$((i+1))
+    if [ "$i" -eq 6 ]; then
+        echo triton server pod not created in five minutes, exiting
+        exit -1
+    fi
+    sleep 60
+done
+echo Waiting for triton server pod to be 'Running' ...
+kubectl -n $NAMESPACE wait pod --for=jsonpath='{.status.phase}'=Running --selector app=tritoninferenceserver --timeout=1800s

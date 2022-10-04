@@ -16,19 +16,13 @@
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
 # THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHERG
 # DEALINGS IN THE SOFTWARE.
-
-variable "cuopt_server_type" {
-  description = "The type of cuOpt server to run (jupyter, api, or both)"
-  type        = string
-  default     = "api"
-}
 
 variable "prefix_name" {
   description = "Prefix to append with random string for generating resource names (including instance name)"
   type        = string
-  default     = "cuopt"
+  default     = "triton"
 }
 
 variable "instance_type" {
@@ -43,14 +37,20 @@ variable "instance_region" {
   default     = "us-east-1"
 }
 
+variable "model_repository_region" {
+  description = "The EC2 region of the model repository bucket. Defaults to instance region if unset."
+  type        = string
+  default     = ""
+}
+
 variable "ssh_cidr_blocks" {
   description = "The cidr blocks to use for the incoming ssh port (22)"
   type        = list
   default     = ["0.0.0.0/0"]
 }
 
-variable "cuopt_server_cidr_blocks" {
-  description = "The cidr blocks to use for the incoming cuOptserver ports (30000,30001)"
+variable "server_cidr_blocks" {
+  description = "The cidr blocks to use for the incoming ports (30000,30001)"
   type        = list
   default     = ["0.0.0.0/0"]
 }
@@ -110,8 +110,22 @@ variable "private_key_path" {
   type        = string
 }
 
-variable "api_key" {
-  description = "The NGC api-key for accessing cuOpt resources. Recommended to set this via an environment variable."
-  type        = string
-  sensitive   = true
+variable "aws_secret_access_key" {
+  description = "AWS secret access key used to read model repository from an s3 bucket"
+  type = string
+}
+
+variable "aws_access_key_id" {
+  description = "AWS access key id used to read model repository from an s3 bucket"
+  type = string
+}
+
+variable "aws_session_token" {
+  description = "AWS session token used to read model repository from an s3 bucket"
+  type = string
+}
+
+variable "model_repository" {
+  description = "Model repository path"
+  type = string
 }
