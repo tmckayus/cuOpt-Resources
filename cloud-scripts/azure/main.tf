@@ -104,12 +104,12 @@ resource "azurerm_network_security_rule" "port30000" {
   name                       = "cuopt_api"
   direction                  = "Inbound"
   priority                   = "301"
-  access                     = var.cuopt_port_access
+  access                     = var.triton_port_access
   protocol                   = "Tcp"
-  source_port_range          = var.cuopt_source_port_range
+  source_port_range          = var.triton_source_port_range
   destination_port_range     = "30000-30001"
-  source_address_prefixes    = var.cuopt_source_address_prefixes
-  destination_address_prefix  = var.cuopt_destination_address_prefix
+  source_address_prefixes    = var.triton_source_address_prefixes
+  destination_address_prefix  = var.triton_destination_address_prefix
   resource_group_name         = azurerm_resource_group.rg.name
   network_security_group_name = azurerm_network_security_group.cuopt_sg.name  
 }
@@ -177,7 +177,6 @@ output "outputs" {
             "ip": azurerm_linux_virtual_machine.cuopt_server.public_ip_address,
             "user": var.user,
             "private_key_path": var.private_key_path,
-            "cuopt_server_type": var.cuopt_server_type
           }
 }
 
@@ -196,6 +195,11 @@ resource "null_resource" "install-cnc" {
     source      = "${path.module}/../scripts"
     destination = "scripts"
   }
+
+ provisioner "file" {
+    source      = "${path.module}/tritoninferenceserver"
+    destination = "tritoninferenceserver"
+ }
 
   provisioner "remote-exec" {
     inline = [<<EOT
@@ -223,7 +227,7 @@ resource "null_resource" "start-cuopt" {
 
   provisioner "remote-exec" {
     inline = [<<EOT
-      API_KEY=${var.api_key} SERVER_TYPE=${var.cuopt_server_type} scripts/cuopt-helm.sh 2>&1 | tee logs/cuopt-helm.log
+      AZURE_STORAGE_ACCOUNT=${var.azure_storage_account} AZURE_STORAGE_KEY=${var.azure_storage_key} MODEL_REPOSITORY=${var.model_repository} scripts/triton-helm.sh 2>&1 | tee logs/triton-helm.log
     EOT
     ]
   }
@@ -242,8 +246,7 @@ resource "null_resource" "wait-cuopt" {
 
   provisioner "remote-exec" {
     inline = [<<EOT
-      scripts/wait-cuopt.sh 2>&1 | tee logs/wait-for-cuopt.log
-      scripts/delete-secret.sh 2>&1 | tee logs/delete-secret.log
+      scripts/wait-triton.sh 2>&1 | tee logs/wait-triton.log
     EOT
     ]
   }

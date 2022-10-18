@@ -19,16 +19,10 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-variable "cuopt_server_type" {
-  description = "The type of cuOpt server to run (jupyter, api, or both)"
-  type        = string
-  default     = "api"
-}
-
 variable "instance_name" {
   description = "Name of the linux virtual machine instance"
   type        = string
-  default     = "cuopt"
+  default     = "triton"
 }
 
 # Publisher, offer, sku, and version are used together to identify the OS image
@@ -104,26 +98,26 @@ variable "ssh_destination_address_prefix" {
   default = "*"
 }
 
-variable "cuopt_port_access" {
-  description = "Access mode for cuopt rule.  Allow or Deny. Applies to source and destination addresses"
+variable "triton_port_access" {
+  description = "Access mode for triton rule.  Allow or Deny. Applies to source and destination addresses"
   type = string
   default = "Allow"
 }
 
-variable "cuopt_source_port_range" {
-  description = "The source port range for cuopt server (ports 30000,30001) connections to the instance"
+variable "triton_source_port_range" {
+  description = "The source port range for triton server (ports 30000,30001,30002) connections to the instance"
   type = string
   default = "*"
 }
 
-variable "cuopt_source_address_prefixes" {
-  description = "The source address prefix for cuopt server (ports 30000,30001) connections to the instance"
+variable "triton_source_address_prefixes" {
+  description = "The source address prefix for triton server (ports 30000,30001,30002) connections to the instance"
   type = list
   default = ["0.0.0.0/0"]
 }
 
-variable "cuopt_destination_address_prefix" {
-  description = "The destination address prefix for cuopt server (ports 30000,30001) connections to the instance"
+variable "triton_destination_address_prefix" {
+  description = "The destination address prefix for triton server (ports 30000,30001,30002) connections to the instance"
   type = string
   default = "*"
 }
@@ -144,11 +138,6 @@ variable "private_key_path" {
   type        = string
 }
 
-variable "api_key" {
-  description = "The NGC api-key for accessing cuOpt resources. Recommended to set this via an environment variable."
-  type        = string
-  sensitive   = true
-}
 variable "resource_group_location" {
   description = "Location of the resource group."
   type        = string
@@ -158,5 +147,20 @@ variable "resource_group_location" {
 variable "resource_group_prefix" {
   description = "Resource group prefix which will be combined with a random id."
   type        = string
-  default     = "cuopt"
+  default     = "triton"
+}
+
+variable "azure_storage_account" {
+  description = "The name of the azure storage account holding the model repository"
+  type        = string
+}
+
+variable "azure_storage_key" {
+  description = "The key for the azure storage account holding the model repository"
+  type        = string
+}
+
+variable "model_repository" {
+  description = " "
+  type = string
 }

@@ -22,19 +22,16 @@
 # DEALINGS IN THE SOFTWARE.
 
 DIR=$(dirname $(realpath "$0"))
-if [ "$AWS_ACCESS_KEY_ID" == "" ]; then
-    read -sp 'Enter a AWS_ACCESS_KEY_ID: ' AWS_ACCESS_KEY_ID
-fi
+#if [ "$AZURE_STORAGE_ACCOUNT" == "" ]; then
+#    read -sp 'Enter an AZURE_STORAGE_ACCOUNT: ' AZURE_STORAGE_ACCOUNT
+#fi
 
-if [ "$AWS_SECRET_ACCESS_KEY" == "" ]; then
-    read -sp 'Enter a AWS_SECRET_ACCESS_KEY: ' AWS_SECRET_ACCESS_KEY
-fi
+#if [ "$AZURE_STORAGE_KEY" == "" ]; then
+#    read -sp 'Enter an AZURE_STORAGE_KEY: ' AZURE_STORAGE_KEY
+#fi
 
-if [ "$AWS_SECRET_ACCESS_KEY" == "" ]; then
-    read -sp 'Enter a AWS_SECRET_ACCESS_KEY: ' AWS_SECRET_ACCESS_KEY
-fi
-
-TF_VAR_aws_access_key_id=$AWS_ACCESS_KEY_ID TF_VAR_aws_secret_access_key=$AWS_SECRET_ACCESS_KEY TF_VAR_aws_session_token=$AWS_SESSION_TOKEN terraform apply --auto-approve
+#TF_VAR_azure_storage_account TF_VAR_azure_storage_key terraform apply --auto-approve
+terraform apply --auto-approve
 if [ "$?" -ne 0 ]; then
     exit -1
 fi
