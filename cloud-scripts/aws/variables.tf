@@ -123,6 +123,7 @@ variable "aws_access_key_id" {
 variable "aws_session_token" {
   description = "AWS session token used to read model repository from an s3 bucket"
   type = string
+  default = ""
 }
 
 variable "model_repository" {

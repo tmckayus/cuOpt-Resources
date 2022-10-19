@@ -22,15 +22,6 @@
 # DEALINGS IN THE SOFTWARE.
 
 DIR=$(dirname $(realpath "$0"))
-#if [ "$AZURE_STORAGE_ACCOUNT" == "" ]; then
-#    read -sp 'Enter an AZURE_STORAGE_ACCOUNT: ' AZURE_STORAGE_ACCOUNT
-#fi
-
-#if [ "$AZURE_STORAGE_KEY" == "" ]; then
-#    read -sp 'Enter an AZURE_STORAGE_KEY: ' AZURE_STORAGE_KEY
-#fi
-
-#TF_VAR_azure_storage_account TF_VAR_azure_storage_key terraform apply --auto-approve
 terraform apply --auto-approve
 if [ "$?" -ne 0 ]; then
     exit -1

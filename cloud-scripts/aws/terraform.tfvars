@@ -21,11 +21,11 @@
 
 # The following variables are required for AWS and have no defaults
 
-#private_key_path = "~/.ssh/id_rsa"
-#public_key_path = "~/.ssh/id_rsa.pub"
+private_key_path = "~/.ssh/id_rsa"
+public_key_path = "~/.ssh/id_rsa.pub"
 
-#model_repository = "s3://tmckay-exp/model_repository"
-#model_repository_region = "us-east-2"
+model_repository = "s3://tmckay-exp/model_repository"
+model_repository_region = "us-east-2"
 
 # Optional settings
 

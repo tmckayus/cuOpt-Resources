@@ -159,15 +159,22 @@ resource "null_resource" "install-cnc" {
     destination = "scripts"
   }
 
- provisioner "file" {
-    source      = "${path.module}/tritoninferenceserver"
+  provisioner "file" {
+    source      = "${path.module}/../tritoninferenceserver"
     destination = "tritoninferenceserver"
- }
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/overrides"
+    destination = "overrides"
+  }
 
   provisioner "remote-exec" {
     inline = [<<EOT
       chmod +x scripts/*.sh;
       mkdir logs;
+      cp -r overrides/scripts/* scripts/;
+      cp -r overrides/tritoninferenceserver/* tritoninferenceserver/;
       scripts/install-cnc.sh 2>&1 | tee logs/install-cnc.log;
       scripts/wait-cnc.sh   2>&1 | tee logs/wait-cnc.log;
     EOT

@@ -21,12 +21,4 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-NAMESPACE=triton
-kubectl create namespace $NAMESPACE
-
-tokenstring=""
-if [ -n "$AWS_SESSION_TOKEN" ]; then
-    tokenstring="--set aws_auth.AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN"
-fi
-
-helm install tritonserver tritoninferenceserver --values tritoninferenceserver/values.yaml --set aws_auth.AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" --set aws_auth.AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" $tokenstring --set image.modelRepositoryPath="$MODEL_REPOSITORY" --set aws_auth.AWS_DEFAULT_REGION="$MODEL_REPOSITORY_REGION" --namespace $NAMESPACE
+TF_VAR_azure_storage_key="" terraform destroy --auto-approve
