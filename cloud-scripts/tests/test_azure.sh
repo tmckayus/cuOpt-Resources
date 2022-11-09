@@ -1,0 +1,29 @@
+#!/bin/bash
+# Install terraform cli if it is not installed
+command -v terraform
+if [ "$?" -ne 0 ]; then
+    ./install_terraform.sh
+fi
+
+# generate an ssh key if not present (echo "n" for "overwrite?")
+echo "n" | ssh-keygen -t RSA -b 4096 -f azure_rsa -N ""
+echo
+export TF_VAR_public_key_path=$(pwd)"/azure_rsa.pub"
+export TF_VAR_private_key_path=$(pwd)"/azure_rsa"
+echo Running build script ...
+./up.sh azure
+up_res=$?
+
+# Even if the spin up fails, we want to run down.sh before failing
+# so that we do not accidentally leave infra deployed on Azure
+echo Running teardown script ...
+./down.sh azure
+down_res=$?
+
+if [ "$up_res" -ne 0 ]; then
+    echo Build test fails
+    exit $up_res
+elif [ "$down_res" -ne 0 ]; then
+    echo Teardown test fails
+    exit $down_res
+fi
