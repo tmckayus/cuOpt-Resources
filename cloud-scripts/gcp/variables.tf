@@ -73,6 +73,12 @@ variable "gpu_type" {
   default     = "nvidia-tesla-t4"
 }
 
+variable "network_address_space" {
+  description = "A cidr value to define the address space of the cuopt subnet"
+  type        = string
+  default     = "10.0.0.0/24"
+}
+
 variable "additional_ports" {
   description = "Additional ports to open on the instance. Defaulted to ssh (port 22)"
   type        = list

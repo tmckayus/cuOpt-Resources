@@ -48,27 +48,40 @@ provider "google" {
   region      = var.gcp_region
 }
 
-resource "google_compute_firewall" "additional_rules" {
-  name    = "${lower(random_pet.pet.id)}-other"
-  network = "default"
-  allow {
-    protocol = "tcp"
-    ports    = var.additional_ports
-  }
+resource "google_compute_network" "cuopt_network" {
+  name                    = "cuopt-network"
+  auto_create_subnetworks = false
+}
 
-  source_ranges = var.additional_ports_source_ranges
-  target_tags = [lower(random_pet.pet.id)]
+resource "google_compute_subnetwork" "cuopt_subnet" {
+  name          = "cuopt-subnet"
+  ip_cidr_range = var.network_address_space
+  project       = var.gcp_project
+  region        = var.gcp_region
+  network       = google_compute_network.cuopt_network.id
 }
 
 resource "google_compute_firewall" "cuopt_rules" {
   name    = "${lower(random_pet.pet.id)}-server"
-  network = "default"
+  network = google_compute_network.cuopt_network.id
   allow {
     protocol = "tcp"
     ports    = var.cuopt_ports
   }
   
   source_ranges = var.cuopt_ports_source_ranges
+  target_tags = [lower(random_pet.pet.id)]
+}
+
+resource "google_compute_firewall" "additional_rules" {
+  name    = "${lower(random_pet.pet.id)}-other"
+  network = google_compute_network.cuopt_network.id
+  allow {
+    protocol = "tcp"
+    ports    = var.additional_ports
+  }
+
+  source_ranges = var.additional_ports_source_ranges
   target_tags = [lower(random_pet.pet.id)]
 }
 
@@ -95,7 +108,8 @@ resource "google_compute_instance" "cuopt_server" {
   }  
 
   network_interface {
-    network       = "default"
+    network       = google_compute_network.cuopt_network.id
+    subnetwork    = google_compute_subnetwork.cuopt_subnet.id
     access_config {
       nat_ip = google_compute_address.ip.address
     }
