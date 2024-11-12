@@ -16,4 +16,4 @@ cuOpt uses highly optimized GPU-accelerated solvers relying on heuristics, metah
 
 ## Contents
 * NVIDIA cuOpt managed service example notebooks
-  * [Routing Optimization](notebooks/routing/microservice) 
+  * [Routing Optimization](notebooks/routing/) 
