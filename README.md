@@ -5,10 +5,10 @@ This repository contains a collection of resources demonstrating use of NVIDIA c
 
 The cuOpt-Resources repository is under [MIT License](LICENSE.md)
 
-Use of NVIDIA cuOpt is subject to the [End User License Agreement](https://docs.nvidia.com/cuopt/user-guide/license.html)
+Use of NVIDIA cuOpt is subject to the [End User License Agreement](https://docs.nvidia.com/cuopt/user-guide/license_sh.html)
 
 
-## [NVIDIA cuOpt](https://docs.nvidia.com/cuopt/user-guide/license.html)
+## [NVIDIA cuOpt](https://docs.nvidia.com/cuopt/user-guide/license_sh.html)
 
 cuOpt uses highly optimized GPU-accelerated solvers relying on heuristics, metaheuristics, and optimization. In addition to providing dramatically accelerated, world class solutions to some of the most difficult optimization problems, NVIDIA cuOpt prioritizes ease of use through high level service APIs
 
